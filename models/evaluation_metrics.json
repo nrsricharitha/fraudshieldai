@@ -1,0 +1,105 @@
+{
+  "supervised_models": [
+    {
+      "model_name": "Logistic Regression",
+      "accuracy": 99.28,
+      "roc_auc": 97.49,
+      "pr_auc": 73.07,
+      "default_threshold_0.5": {
+        "precision": 5.6,
+        "recall": 91.84,
+        "f1_score": 10.56,
+        "confusion_matrix": {
+          "tn": 55347,
+          "fp": 1517,
+          "fn": 8,
+          "tp": 90
+        }
+      },
+      "optimal_threshold": 0.85,
+      "optimal_metrics": {
+        "precision": 18.07,
+        "recall": 89.8,
+        "f1_score": 30.09,
+        "confusion_matrix": {
+          "tn": 56465,
+          "fp": 399,
+          "fn": 10,
+          "tp": 88
+        }
+      },
+      "training_time_seconds": 9.08
+    },
+    {
+      "model_name": "Random Forest",
+      "accuracy": 99.94,
+      "roc_auc": 96.9,
+      "pr_auc": 82.14,
+      "default_threshold_0.5": {
+        "precision": 82.47,
+        "recall": 81.63,
+        "f1_score": 82.05,
+        "confusion_matrix": {
+          "tn": 56847,
+          "fp": 17,
+          "fn": 18,
+          "tp": 80
+        }
+      },
+      "optimal_threshold": 0.5362,
+      "optimal_metrics": {
+        "precision": 82.47,
+        "recall": 81.63,
+        "f1_score": 82.05,
+        "confusion_matrix": {
+          "tn": 56847,
+          "fp": 17,
+          "fn": 18,
+          "tp": 80
+        }
+      },
+      "training_time_seconds": 102.53
+    },
+    {
+      "model_name": "XGBoost",
+      "accuracy": 99.94,
+      "roc_auc": 98.12,
+      "pr_auc": 85.29,
+      "default_threshold_0.5": {
+        "precision": 58.87,
+        "recall": 84.69,
+        "f1_score": 69.46,
+        "confusion_matrix": {
+          "tn": 56806,
+          "fp": 58,
+          "fn": 15,
+          "tp": 83
+        }
+      },
+      "optimal_threshold": 0.85,
+      "optimal_metrics": {
+        "precision": 79.61,
+        "recall": 83.67,
+        "f1_score": 81.59,
+        "confusion_matrix": {
+          "tn": 56843,
+          "fp": 21,
+          "fn": 16,
+          "tp": 82
+        }
+      },
+      "training_time_seconds": 8.72
+    }
+  ],
+  "isolation_forest": {
+    "model_name": "Isolation Forest",
+    "type": "Unsupervised Anomaly Detection",
+    "contamination_parameter": 0.002,
+    "training_time_seconds": 3.34,
+    "flagged_anomalies_test": 145,
+    "true_frauds_detected": 30,
+    "fraud_recall": 30.61,
+    "precision": 20.69,
+    "note": "Anomaly detection flags statistical outliers without ground-truth fraud supervision."
+  }
+}

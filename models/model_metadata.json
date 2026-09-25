@@ -1,0 +1,240 @@
+{
+  "project": "FraudShield AI",
+  "dataset": "Kaggle Credit Card Fraud Detection",
+  "training_timestamp": "2026-09-25T11:43:32.598570",
+  "total_records": 284807,
+  "fraud_records": 492,
+  "legitimate_records": 284315,
+  "fraud_percentage": 0.1727,
+  "train_samples": 227845,
+  "test_samples": 56962,
+  "selected_model": "XGBoost",
+  "decision_threshold": 0.85,
+  "raw_features": [
+    "Time",
+    "V1",
+    "V2",
+    "V3",
+    "V4",
+    "V5",
+    "V6",
+    "V7",
+    "V8",
+    "V9",
+    "V10",
+    "V11",
+    "V12",
+    "V13",
+    "V14",
+    "V15",
+    "V16",
+    "V17",
+    "V18",
+    "V19",
+    "V20",
+    "V21",
+    "V22",
+    "V23",
+    "V24",
+    "V25",
+    "V26",
+    "V27",
+    "V28",
+    "Amount"
+  ],
+  "engineered_features": [
+    "V1",
+    "V2",
+    "V3",
+    "V4",
+    "V5",
+    "V6",
+    "V7",
+    "V8",
+    "V9",
+    "V10",
+    "V11",
+    "V12",
+    "V13",
+    "V14",
+    "V15",
+    "V16",
+    "V17",
+    "V18",
+    "V19",
+    "V20",
+    "V21",
+    "V22",
+    "V23",
+    "V24",
+    "V25",
+    "V26",
+    "V27",
+    "V28",
+    "Amount",
+    "Amount_log",
+    "Hour",
+    "Hour_sin",
+    "Hour_cos",
+    "Day",
+    "V_mean",
+    "V_std",
+    "V_abs_sum"
+  ],
+  "selected_model_metrics": {
+    "model_name": "XGBoost",
+    "accuracy": 99.94,
+    "roc_auc": 98.12,
+    "pr_auc": 85.29,
+    "default_threshold_0.5": {
+      "precision": 58.87,
+      "recall": 84.69,
+      "f1_score": 69.46,
+      "confusion_matrix": {
+        "tn": 56806,
+        "fp": 58,
+        "fn": 15,
+        "tp": 83
+      }
+    },
+    "optimal_threshold": 0.85,
+    "optimal_metrics": {
+      "precision": 79.61,
+      "recall": 83.67,
+      "f1_score": 81.59,
+      "confusion_matrix": {
+        "tn": 56843,
+        "fp": 21,
+        "fn": 16,
+        "tp": 82
+      }
+    },
+    "training_time_seconds": 8.72
+  },
+  "top_feature_importances": {
+    "V14": 0.39825,
+    "V4": 0.05758,
+    "V_mean": 0.03887,
+    "V10": 0.03365,
+    "V12": 0.03231,
+    "V8": 0.02977,
+    "V20": 0.02964,
+    "Amount": 0.02456,
+    "V13": 0.02415,
+    "V_std": 0.02238,
+    "Hour": 0.0219,
+    "V26": 0.01985,
+    "V21": 0.01934,
+    "V28": 0.01862,
+    "V7": 0.01719
+  },
+  "all_models_evaluated": [
+    {
+      "model_name": "Logistic Regression",
+      "accuracy": 99.28,
+      "roc_auc": 97.49,
+      "pr_auc": 73.07,
+      "default_threshold_0.5": {
+        "precision": 5.6,
+        "recall": 91.84,
+        "f1_score": 10.56,
+        "confusion_matrix": {
+          "tn": 55347,
+          "fp": 1517,
+          "fn": 8,
+          "tp": 90
+        }
+      },
+      "optimal_threshold": 0.85,
+      "optimal_metrics": {
+        "precision": 18.07,
+        "recall": 89.8,
+        "f1_score": 30.09,
+        "confusion_matrix": {
+          "tn": 56465,
+          "fp": 399,
+          "fn": 10,
+          "tp": 88
+        }
+      },
+      "training_time_seconds": 9.08
+    },
+    {
+      "model_name": "Random Forest",
+      "accuracy": 99.94,
+      "roc_auc": 96.9,
+      "pr_auc": 82.14,
+      "default_threshold_0.5": {
+        "precision": 82.47,
+        "recall": 81.63,
+        "f1_score": 82.05,
+        "confusion_matrix": {
+          "tn": 56847,
+          "fp": 17,
+          "fn": 18,
+          "tp": 80
+        }
+      },
+      "optimal_threshold": 0.5362,
+      "optimal_metrics": {
+        "precision": 82.47,
+        "recall": 81.63,
+        "f1_score": 82.05,
+        "confusion_matrix": {
+          "tn": 56847,
+          "fp": 17,
+          "fn": 18,
+          "tp": 80
+        }
+      },
+      "training_time_seconds": 102.53
+    },
+    {
+      "model_name": "XGBoost",
+      "accuracy": 99.94,
+      "roc_auc": 98.12,
+      "pr_auc": 85.29,
+      "default_threshold_0.5": {
+        "precision": 58.87,
+        "recall": 84.69,
+        "f1_score": 69.46,
+        "confusion_matrix": {
+          "tn": 56806,
+          "fp": 58,
+          "fn": 15,
+          "tp": 83
+        }
+      },
+      "optimal_threshold": 0.85,
+      "optimal_metrics": {
+        "precision": 79.61,
+        "recall": 83.67,
+        "f1_score": 81.59,
+        "confusion_matrix": {
+          "tn": 56843,
+          "fp": 21,
+          "fn": 16,
+          "tp": 82
+        }
+      },
+      "training_time_seconds": 8.72
+    }
+  ],
+  "anomaly_detection_metrics": {
+    "model_name": "Isolation Forest",
+    "type": "Unsupervised Anomaly Detection",
+    "contamination_parameter": 0.002,
+    "training_time_seconds": 3.34,
+    "flagged_anomalies_test": 145,
+    "true_frauds_detected": 30,
+    "fraud_recall": 30.61,
+    "precision": 20.69,
+    "note": "Anomaly detection flags statistical outliers without ground-truth fraud supervision."
+  },
+  "risk_scoring_scale": {
+    "low_risk": "0 - 30",
+    "medium_risk": "31 - 70",
+    "high_risk": "71 - 100",
+    "disclaimer": "Project-defined risk score for demonstration & analysis; not an official banking credit risk rating."
+  }
+}
