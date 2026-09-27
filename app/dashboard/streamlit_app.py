@@ -138,14 +138,7 @@ with head_col2:
     if service.is_loaded:
         active_model = service.metadata.get('selected_model', 'XGBoost')
         active_thresh = service.threshold
-        st.markdown(
-            f"<div style='text-align:right; padding-top:10px;'>"
-            f"<span style='background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.3); "
-            f"padding:5px 12px; border-radius:6px; font-size:12px; font-weight:600;'>"
-            f"● Model Active: {active_model} | Threshold: {active_thresh:.4f}</span>"
-            f"</div>",
-            unsafe_allow_html=True
-        )
+        st.success(f"● Active: {active_model} | Threshold: {active_thresh:.4f}")
 
 # MAIN FIVE-SECTION NAVIGATION
 tab_dashboard, tab_tx_analysis, tab_batch_analysis, tab_alerts, tab_model_perf = st.tabs([
@@ -202,27 +195,14 @@ with tab_dashboard:
 
     with mcol1:
         st.markdown("### Production Model Status")
-        st.markdown(f"""
-        <div class="metric-card">
-            <p style="margin:0 0 8px 0; color:#94a3b8; font-size:12px; text-transform:uppercase; letter-spacing:0.05em;">Currently Deployed Classifier</p>
-            <h3 style="margin:0; color:#f1f5f9; font-weight:700;">{meta.get('selected_model', 'XGBoost')}</h3>
-            <p style="color:#64748b; font-size:12px; margin:4px 0 12px 0;">Trained on Kaggle Credit Card Fraud Benchmark</p>
-            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; margin-top:12px;">
-                <div style="background:#0b0f15; padding:8px; border-radius:6px; border:1px solid #1c2330; text-align:center;">
-                    <span style="color:#64748b; font-size:10px;">PR-AUC</span><br/>
-                    <strong style="color:#22c55e; font-size:14px;">{sel_metrics.get('pr_auc', 85.29)}%</strong>
-                </div>
-                <div style="background:#0b0f15; padding:8px; border-radius:6px; border:1px solid #1c2330; text-align:center;">
-                    <span style="color:#64748b; font-size:10px;">FRAUD RECALL</span><br/>
-                    <strong style="color:#3385ff; font-size:14px;">{opt_metrics.get('recall', 83.67)}%</strong>
-                </div>
-                <div style="background:#0b0f15; padding:8px; border-radius:6px; border:1px solid #1c2330; text-align:center;">
-                    <span style="color:#64748b; font-size:10px;">THRESHOLD</span><br/>
-                    <strong style="color:#f59e0b; font-size:14px;">{service.threshold:.4f}</strong>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.caption(f"Currently Deployed Classifier: **{meta.get('selected_model', 'XGBoost')}** (Trained on Kaggle Benchmark)")
+        s1, s2, s3 = st.columns(3)
+        with s1:
+            st.metric("PR-AUC", f"{sel_metrics.get('pr_auc', 85.29)}%")
+        with s2:
+            st.metric("Fraud Recall", f"{opt_metrics.get('recall', 83.67)}%")
+        with s3:
+            st.metric("Threshold", f"{service.threshold:.4f}")
 
     with mcol2:
         st.markdown("### Risk Tier Distribution")
@@ -231,33 +211,23 @@ with tab_dashboard:
         med_pct = (med_risk_count / tot) * 100
         high_pct = (high_risk_count / tot) * 100
 
-        st.markdown(f"""
-        <div class="metric-card">
-            <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px;">
-                <span style="color:#22c55e; font-weight:600;">● Low Risk (0–30)</span>
-                <span style="color:#cbd5e1;">{low_risk_count} tx ({low_pct:.1f}%)</span>
-            </div>
-            <div style="width:100%; height:8px; background:#0b0f15; border-radius:4px; overflow:hidden; margin-bottom:12px;">
-                <div style="width:{low_pct}%; height:100%; background:#22c55e;"></div>
-            </div>
+        # Low Risk (0–30)
+        c_low_l, c_low_r = st.columns([3, 2])
+        c_low_l.markdown("🟢 **Low Risk (0–30)**")
+        c_low_r.markdown(f"**{low_risk_count}** tx ({low_pct:.1f}%)")
+        st.progress(min(1.0, max(0.0, float(low_pct / 100.0))))
 
-            <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px;">
-                <span style="color:#f59e0b; font-weight:600;">● Medium Risk (31–70)</span>
-                <span style="color:#cbd5e1;">{med_risk_count} tx ({med_pct:.1f}%)</span>
-            </div>
-            <div style="width:100%; height:8px; background:#0b0f15; border-radius:4px; overflow:hidden; margin-bottom:12px;">
-                <div style="width:{med_pct}%; height:100%; background:#f59e0b;"></div>
-            </div>
+        # Medium Risk (31–70)
+        c_med_l, c_med_r = st.columns([3, 2])
+        c_med_l.markdown("🟡 **Medium Risk (31–70)**")
+        c_med_r.markdown(f"**{med_risk_count}** tx ({med_pct:.1f}%)")
+        st.progress(min(1.0, max(0.0, float(med_pct / 100.0))))
 
-            <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px;">
-                <span style="color:#ef4444; font-weight:600;">● High Risk (71–100)</span>
-                <span style="color:#cbd5e1;">{high_risk_count} tx ({high_pct:.1f}%)</span>
-            </div>
-            <div style="width:100%; height:8px; background:#0b0f15; border-radius:4px; overflow:hidden;">
-                <div style="width:{high_pct}%; height:100%; background:#ef4444;"></div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        # High Risk (71–100)
+        c_hi_l, c_hi_r = st.columns([3, 2])
+        c_hi_l.markdown("🔴 **High Risk (71–100)**")
+        c_hi_r.markdown(f"**{high_risk_count}** tx ({high_pct:.1f}%)")
+        st.progress(min(1.0, max(0.0, float(high_pct / 100.0))))
 
     # Recent Feed Table
     st.markdown("### Recent Scored Feed")
@@ -519,18 +489,12 @@ with tab_model_perf:
     st.caption("Training provenance, empirical evaluation benchmarks on the held-out evaluation dataset, and live metrics.")
 
     # Top Provenance Header
-    st.markdown("""
-    <div class="metric-card">
-        <p style="margin:0; font-size:13px; color:#cbd5e1;">
-            <strong>Training Dataset:</strong> Kaggle Credit Card Fraud Detection (284,807 transactions)<br/>
-            <strong>Evaluation:</strong> Held-out test set
-        </p>
-        <p style="margin:6px 0 0 0; font-size:12px; color:#94a3b8;">
-            The Kaggle Credit Card Fraud Detection dataset was used for offline model development, training, and evaluation.
-            The deployed FraudShield AI application uses the resulting trained XGBoost and Isolation Forest pipelines for real-time transaction scoring.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.info(
+        "**Training Dataset:** Kaggle Credit Card Fraud Detection (284,807 transactions) | "
+        "**Evaluation Set:** 56,962 held-out transactions  \n"
+        "The Kaggle benchmark dataset was used for offline model development, cross-validation, and hold-out evaluation. "
+        "The deployed FraudShield AI application uses the resulting trained XGBoost and Isolation Forest pipelines for real-time scoring."
+    )
 
     # Actual Evaluation Split vs Display Sample Size
     st.markdown("### Evaluation Size Breakdown")
@@ -579,19 +543,21 @@ with tab_model_perf:
     iso_info = meta.get('anomaly_detection_metrics', {})
     if iso_info:
         st.markdown("#### Unsupervised Anomaly Detection — Isolation Forest")
-        st.markdown(f"""
-        <div class="metric-card">
-            <p style="font-size:12px; color:#cbd5e1; margin-bottom:8px;">
-                <strong>Fraud Classification vs Anomaly Detection:</strong> Supervised models (XGBoost) learn decision boundaries from labeled fraud examples.
-                Isolation Forest detects statistical outliers purely based on feature density without supervision.
-            </p>
-            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; font-size:12px;">
-                <div><span style="color:#64748b;">Contamination Setting:</span> <strong style="color:#f1f5f9;">{iso_info.get('contamination_parameter', 0.002)}</strong></div>
-                <div><span style="color:#64748b;">Anomalies Flagged:</span> <strong style="color:#f1f5f9;">{iso_info.get('flagged_anomalies_test', 145)} tx</strong></div>
-                <div><span style="color:#64748b;">True Frauds Intercepted:</span> <strong style="color:#22c55e;">{iso_info.get('true_frauds_detected', 30)} / 98 ({iso_info.get('fraud_recall', 30.61)}%)</strong></div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.caption(
+            "Supervised models (XGBoost) learn decision boundaries from labeled fraud examples. "
+            "Isolation Forest detects statistical outliers purely based on feature density without supervision."
+        )
+        ic1, ic2, ic3 = st.columns(3)
+        with ic1:
+            st.metric("Contamination Parameter", f"{iso_info.get('contamination_parameter', 0.002)}")
+        with ic2:
+            st.metric("Anomalies Flagged", f"{iso_info.get('flagged_anomalies_test', 145):,} tx")
+        with ic3:
+            st.metric(
+                "True Frauds Intercepted",
+                f"{iso_info.get('true_frauds_detected', 30)} / 98",
+                delta=f"{iso_info.get('fraud_recall', 30.61)}% Recall"
+            )
 
     st.markdown("---")
 
