@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { ToastContainer } from '@/components/ui/Toast';
 import { Topbar } from '@/components/layout/Topbar';
-import { KaggleTablePage } from '@/pages/KaggleTablePage';
-import { KaggleReasonsPage } from '@/pages/KaggleReasonsPage';
-import { UploadDatasetPage } from '@/pages/UploadDatasetPage';
-import { UploadReasonsPage } from '@/pages/UploadReasonsPage';
+import { DashboardPage } from '@/pages/DashboardPage';
+import { TransactionsPage } from '@/pages/TransactionsPage';
+import { BatchPage } from '@/pages/BatchPage';
+import { AlertsPage } from '@/pages/AlertsPage';
 import { ModelInsightsPage } from '@/pages/ModelInsightsPage';
 import { TransactionDetailPage } from '@/pages/TransactionDetailPage';
 import type { PageKey } from '@/types';
 
 export function AppShell() {
-  const [page, setPage] = useState<PageKey>('kaggle-table');
+  const [page, setPage] = useState<PageKey>('dashboard');
   const [selectedTxId, setSelectedTxId] = useState<string | null>(null);
 
   const navigate = (p: PageKey) => {
@@ -24,7 +24,7 @@ export function AppShell() {
 
   return (
     <div className="min-h-screen bg-ink-950 grid-bg flex flex-col">
-      {/* Top Navigation Bar */}
+      {/* Top Navigation Bar: Dashboard | Transaction Analysis | Batch Analysis | Fraud Alerts | Model Performance */}
       <Topbar currentPage={page} onNavigate={navigate} />
 
       {/* Main Full-Width Content Container */}
@@ -55,17 +55,17 @@ function PageRouter({
   viewTransaction: (id: string) => void;
 }) {
   switch (page) {
-    case 'kaggle-table':
-      return <KaggleTablePage onNavigate={onNavigate} viewTransaction={viewTransaction} />;
-    case 'kaggle-reasons':
-      return <KaggleReasonsPage />;
-    case 'upload-dataset':
-      return <UploadDatasetPage onNavigate={onNavigate} />;
-    case 'upload-reasons':
-      return <UploadReasonsPage onNavigate={onNavigate} />;
-    case 'model-performance':
+    case 'dashboard':
+      return <DashboardPage onNavigate={onNavigate} viewTransaction={viewTransaction} />;
+    case 'transactions':
+      return <TransactionsPage viewTransaction={viewTransaction} />;
+    case 'batch':
+      return <BatchPage />;
+    case 'alerts':
+      return <AlertsPage onNavigate={onNavigate} viewTransaction={viewTransaction} />;
+    case 'model':
       return <ModelInsightsPage />;
     default:
-      return <KaggleTablePage onNavigate={onNavigate} viewTransaction={viewTransaction} />;
+      return <DashboardPage onNavigate={onNavigate} viewTransaction={viewTransaction} />;
   }
 }

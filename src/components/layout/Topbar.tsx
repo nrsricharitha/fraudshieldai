@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sun, Moon, CheckCircle2, Table, Lightbulb, UploadCloud, Search, Brain } from 'lucide-react';
+import { Sun, Moon, CheckCircle2, LayoutDashboard, Search, UploadCloud, Bell, Brain } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -11,11 +11,11 @@ interface TopbarProps {
 }
 
 const NAV_ITEMS: { key: PageKey; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { key: 'kaggle-table', label: '1. Kaggle 50 Table', icon: Table },
-  { key: 'kaggle-reasons', label: '2. Kaggle Risk Reasons', icon: Lightbulb },
-  { key: 'upload-dataset', label: '3. Upload New Dataset', icon: UploadCloud },
-  { key: 'upload-reasons', label: '4. New Dataset Risk Analysis', icon: Search },
-  { key: 'model-performance', label: '5. Model Performance', icon: Brain },
+  { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { key: 'transactions', label: 'Transaction Analysis', icon: Search },
+  { key: 'batch', label: 'Batch Analysis', icon: UploadCloud },
+  { key: 'alerts', label: 'Fraud Alerts', icon: Bell },
+  { key: 'model', label: 'Model Performance', icon: Brain },
 ];
 
 export function Topbar({ currentPage, onNavigate }: TopbarProps) {
@@ -47,7 +47,7 @@ export function Topbar({ currentPage, onNavigate }: TopbarProps) {
 
   return (
     <header className="sticky top-0 z-30 glass border-b border-white/[0.06] backdrop-blur-md">
-      {/* Top Line: Brand & Connection Status */}
+      {/* Top Banner: Brand and Model Status */}
       <div className="px-4 lg:px-8 py-2.5 flex items-center justify-between border-b border-white/[0.04]">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
@@ -84,7 +84,7 @@ export function Topbar({ currentPage, onNavigate }: TopbarProps) {
         </div>
       </div>
 
-      {/* Main Top Navigation Bar (Horizontal Tabs) */}
+      {/* Main Top Navigation: 5 Primary Sections */}
       <div className="px-4 lg:px-8 py-2 overflow-x-auto scrollbar-none flex items-center gap-2 bg-ink-900/40">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
@@ -94,7 +94,7 @@ export function Topbar({ currentPage, onNavigate }: TopbarProps) {
               key={item.key}
               onClick={() => onNavigate(item.key)}
               className={cn(
-                'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border',
+                'flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border',
                 active
                   ? 'bg-brand-500/15 text-brand-400 border-brand-500/30 shadow-sm shadow-brand-500/10'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] border-transparent'

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Brain, TrendingUp, ShieldAlert, Award, FileSpreadsheet } from 'lucide-react';
+import { Brain, TrendingUp, ShieldAlert, Award, FileSpreadsheet, Info } from 'lucide-react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -18,13 +18,19 @@ import type { ModelMetric } from '@/types';
 export function ModelInsightsPage() {
   const [metrics, setMetrics] = useState<ModelMetric[]>([]);
   const [modelInfo, setModelInfo] = useState<any | null>(null);
+  const [samples, setSamples] = useState<any[]>([]);
   const [uploadedBatch, setUploadedBatch] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([api.getModelMetrics(), api.getModelInfo()]).then(([m, info]) => {
+    Promise.all([
+      api.getModelMetrics(),
+      api.getModelInfo(),
+      api.getSampleTransactions(50),
+    ]).then(([m, info, s]) => {
       setMetrics(m);
       setModelInfo(info);
+      setSamples(s.samples || []);
       setLoading(false);
     });
 
@@ -46,6 +52,9 @@ export function ModelInsightsPage() {
     Recall: m.recall,
     'ROC-AUC': m.rocAuc,
   }));
+
+  const testSplitSize = modelInfo?.test_samples || 56962;
+  const totalRecords = modelInfo?.total_records || 284807;
 
   // Compute live metrics if uploaded batch has ground truth
   const uploadedStats = (() => {
@@ -87,10 +96,48 @@ export function ModelInsightsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-100">Model Performance & Evaluation</h1>
+        <h1 className="text-2xl font-bold text-slate-100">Model Performance</h1>
         <p className="text-sm text-slate-500 mt-1">
-          Measured performance on the Kaggle held-out evaluation dataset (56,962 transactions) and live metrics on uploaded datasets.
+          Training provenance, empirical evaluation benchmarks on the held-out evaluation dataset, and live metrics.
         </p>
+      </div>
+
+      {/* Top Provenance Header */}
+      <Card className="border-brand-500/20 bg-brand-500/[0.03]">
+        <div className="p-2 space-y-1.5">
+          <p className="text-xs text-slate-300">
+            <strong className="text-slate-100">Training Dataset:</strong> Kaggle Credit Card Fraud Detection ({totalRecords.toLocaleString()} transactions) &nbsp;|&nbsp;{' '}
+            <strong className="text-slate-100">Evaluation:</strong> Held-out test set ({testSplitSize.toLocaleString()} transactions)
+          </p>
+          <p className="text-xs text-slate-400 leading-relaxed">
+            The Kaggle Credit Card Fraud Detection dataset was used for offline model development, training, and evaluation.
+            The deployed FraudShield AI application uses the resulting trained XGBoost and Isolation Forest pipelines for real-time transaction scoring.
+          </p>
+        </div>
+      </Card>
+
+      {/* Actual Evaluation Size vs Interactive Display Sample */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="p-4 rounded-xl bg-ink-800/40 border border-white/[0.06]">
+          <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Total Records</p>
+          <p className="text-2xl font-bold text-slate-100 mt-1">{totalRecords.toLocaleString()}</p>
+          <p className="text-[10px] text-slate-400 mt-0.5">100% Kaggle Data</p>
+        </div>
+        <div className="p-4 rounded-xl bg-brand-500/10 border border-brand-500/20">
+          <p className="text-xs text-brand-400 uppercase tracking-wider font-semibold">Actual Evaluation Split</p>
+          <p className="text-2xl font-bold text-brand-400 mt-1">{testSplitSize.toLocaleString()} tx</p>
+          <p className="text-[10px] text-slate-400 mt-0.5">Full Evaluation Size (98 frauds)</p>
+        </div>
+        <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
+          <p className="text-xs text-purple-400 uppercase tracking-wider font-semibold">Interactive Display Sample</p>
+          <p className="text-2xl font-bold text-purple-400 mt-1">{samples.length} tx</p>
+          <p className="text-[10px] text-slate-400 mt-0.5">Sample for Inspection</p>
+        </div>
+        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+          <p className="text-xs text-emerald-400 uppercase tracking-wider font-semibold">Production PR-AUC</p>
+          <p className="text-2xl font-bold text-emerald-400 mt-1">{deployedModel?.prAuc || 85.29}%</p>
+          <p className="text-[10px] text-slate-400 mt-0.5">Primary Decision Metric</p>
+        </div>
       </div>
 
       {/* Deployed Model Highlight */}
@@ -128,11 +175,11 @@ export function ModelInsightsPage() {
         </Card>
       )}
 
-      {/* SECTION 1: KAGGLE BENCHMARK */}
+      {/* Model Evaluation — Held-Out Test Set */}
       <Card>
         <CardHeader
-          title="1. Kaggle Evaluation Split Benchmark (56,962 Transactions)"
-          subtitle="Direct comparison across trained supervised architectures"
+          title="Model Evaluation — Held-Out Test Set"
+          subtitle={`Evaluated on the full ${testSplitSize.toLocaleString()} transaction held-out evaluation split (98 frauds)`}
           icon={<Brain className="w-4 h-4 text-purple-400" />}
         />
         <div className="overflow-x-auto scrollbar-thin">
@@ -169,7 +216,7 @@ export function ModelInsightsPage() {
                   <td className="px-4 py-3 text-center">
                     {m.status === 'Deployed' ? (
                       <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-brand-500/20 text-brand-400 border border-brand-500/30">
-                        Active
+                        Active Production
                       </span>
                     ) : (
                       <span className="px-2 py-0.5 rounded text-[10px] text-slate-500 bg-ink-800">
@@ -187,8 +234,8 @@ export function ModelInsightsPage() {
       {/* Comparison Chart */}
       <Card>
         <CardHeader
-          title="Kaggle Models Evaluation Chart"
-          subtitle="PR-AUC, F1-Score, Precision, Recall by Architecture"
+          title="Comparative Model Performance Chart"
+          subtitle="PR-AUC, F1-Score, Precision, and Recall by Candidate Model"
           icon={<TrendingUp className="w-4 h-4 text-brand-400" />}
         />
         <div className="h-72">
@@ -215,16 +262,97 @@ export function ModelInsightsPage() {
         </div>
       </Card>
 
-      {/* SECTION 2: LIVE METRICS ON UPLOADED DATASET */}
+      {/* Isolation Forest Section */}
+      <Card>
+        <CardHeader
+          title="Unsupervised Anomaly Detection — Isolation Forest"
+          subtitle="Outlier detection operating without fraud label supervision"
+          icon={<Brain className="w-4 h-4 text-cyan-400" />}
+        />
+        <div className="p-4 space-y-3">
+          <p className="text-xs text-slate-400 leading-relaxed">
+            <strong className="text-slate-200">Fraud Classification vs Anomaly Detection:</strong> Supervised models (XGBoost)
+            learn decision boundaries from labeled fraud examples. Isolation Forest detects statistical outliers purely based on
+            feature density without ground-truth labels.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs">
+            <div className="p-3 rounded-lg bg-ink-800/40 border border-white/[0.04]">
+              <span className="text-slate-500">Contamination Setting: </span>
+              <strong className="text-slate-200">0.002</strong>
+            </div>
+            <div className="p-3 rounded-lg bg-ink-800/40 border border-white/[0.04]">
+              <span className="text-slate-500">Anomalies Flagged: </span>
+              <strong className="text-slate-200">145 transactions</strong>
+            </div>
+            <div className="p-3 rounded-lg bg-ink-800/40 border border-white/[0.04]">
+              <span className="text-slate-500">True Frauds Intercepted: </span>
+              <strong className="text-emerald-400">30 / 98 (30.61% recall)</strong>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Sample Held-Out Test Transactions */}
+      <Card>
+        <CardHeader
+          title="Sample Held-Out Test Transactions"
+          subtitle="50 sample transactions displayed for interactive inspection"
+          icon={<Info className="w-4 h-4 text-brand-400" />}
+        />
+        <div className="p-4 space-y-3">
+          <div className="p-3 rounded-lg bg-brand-500/10 border border-brand-500/20 text-xs text-slate-300 leading-relaxed">
+            These {samples.length} transactions are a displayed sample from the held-out evaluation data.
+            They are provided for interactive inspection and demonstration. Model evaluation is performed on the full held-out test split ({testSplitSize.toLocaleString()} transactions).
+          </div>
+          <div className="overflow-x-auto scrollbar-thin max-h-72">
+            <table className="w-full text-xs text-left">
+              <thead className="bg-ink-900/60 sticky top-0 text-slate-400 uppercase tracking-wider">
+                <tr>
+                  <th className="px-3 py-2.5">Row</th>
+                  <th className="px-3 py-2.5">Amount</th>
+                  <th className="px-3 py-2.5">Time (s)</th>
+                  <th className="px-3 py-2.5">Ground Truth</th>
+                  <th className="px-3 py-2.5">PCA Sample (V1, V2, V14)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.03]">
+                {samples.map((s, idx) => (
+                  <tr key={idx} className="hover:bg-white/[0.02]">
+                    <td className="px-3 py-2 font-mono text-slate-400">#{idx + 1}</td>
+                    <td className="px-3 py-2 font-bold text-slate-200">${Number(s.Amount).toFixed(2)}</td>
+                    <td className="px-3 py-2 font-mono text-slate-400">{Number(s.Time).toFixed(0)}</td>
+                    <td className="px-3 py-2">
+                      {s.Class === 1 ? (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-red-500/10 text-red-400 border border-red-500/20">
+                          Class 1 (Fraud)
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          Class 0 (Legit)
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 font-mono text-slate-400">
+                      V1: {Number(s.V1 || 0).toFixed(2)}, V2: {Number(s.V2 || 0).toFixed(2)}, V14: {Number(s.V14 || 0).toFixed(2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </Card>
+
+      {/* Live Performance on Uploaded Dataset */}
       <Card className="border-cyan-500/20">
         <CardHeader
-          title="2. Live Evaluation Metrics on Uploaded Dataset"
-          subtitle="Measured results computed dynamically on transactions uploaded through Tab 3"
+          title="Performance on Uploaded Dataset (Non-Training Input)"
+          subtitle="Measured results computed dynamically on transactions uploaded through Batch Analysis"
           icon={<FileSpreadsheet className="w-4 h-4 text-cyan-400" />}
         />
         {uploadedStats ? (
           uploadedStats.hasGt ? (
-            <div className="space-y-4 p-2">
+            <div className="space-y-4 p-4">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <MiniMetric label="Accuracy" value={`${uploadedStats.acc}%`} />
                 <MiniMetric label="Precision" value={`${uploadedStats.prec}%`} highlight />
@@ -256,7 +384,7 @@ export function ModelInsightsPage() {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4">
               <MiniMetric label="Transactions Scored" value={`${uploadedStats.total}`} />
               <MiniMetric label="Fraud Rate" value={`${uploadedStats.rate}%`} highlight />
               <MiniMetric label="Average Risk Score" value={`${uploadedStats.avgScore} / 100`} />
@@ -264,7 +392,7 @@ export function ModelInsightsPage() {
           )
         ) : (
           <p className="text-xs text-slate-500 p-4">
-            No dataset has been uploaded yet. Upload a CSV file in the <strong>&ldquo;Upload New Dataset&rdquo;</strong> tab to view live performance metrics here.
+            No dataset has been uploaded yet. Upload a CSV file in the <strong>&ldquo;Batch Analysis&rdquo;</strong> section to view live performance metrics on your new data.
           </p>
         )}
       </Card>

@@ -3,11 +3,11 @@ export type Prediction = 'Legitimate' | 'Fraudulent' | 'Suspicious';
 export type AlertStatus = 'New' | 'Investigating' | 'Resolved';
 
 export type PageKey =
-  | 'kaggle-table'
-  | 'kaggle-reasons'
-  | 'upload-dataset'
-  | 'upload-reasons'
-  | 'model-performance';
+  | 'dashboard'
+  | 'transactions'
+  | 'batch'
+  | 'alerts'
+  | 'model';
 
 export interface ExplanationReason {
   feature: string;
